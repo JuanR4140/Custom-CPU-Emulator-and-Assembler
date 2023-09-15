@@ -1,0 +1,9 @@
+_start: // Start label
+
+  mov ax, 5 // X
+  mov bx, 5 // Y
+  mov cx, 'O' // Char
+  call draw_character // Draws character at specified X/Y
+  
+  call refresh // Refreshes the screen
+  jmp _start // Loop

@@ -1,0 +1,21 @@
+_main:
+  mov ax, 0xC8    ; ax is counter
+  mov bx, 0x300   ; bx is memory location to write to
+  mov cx, 0x23    ; cx is character to write '#'
+
+vram_loop:
+  str cx, bx      ; Store cx '#' into bx memory location
+  sub ax, 0x1     ; Sub 1 from ax, decrementing counter
+  add bx, 0x1     ; Add 1 to bx, incrementing memory location
+  cmp ax, 0       ; Check if counter is done
+  jne vram_loop   ; Loop back to write some more if not
+
+  hlt             ; Halt
+
+          ;;; Made for use within "CPU Something"
+          ;;; Title: "VRAM Initializer"
+          ;;; Author: "JuanR4140"
+          ;;; Desc: "This code initializes VRAM when
+          ;;;        the CPU is powered on. It sets 
+          ;;;        all the memory in VRAM to a single
+          ;;;        character."

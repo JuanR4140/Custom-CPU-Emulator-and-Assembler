@@ -1,0 +1,17 @@
+[Annotations for 'cpu.png']
+
+Have similar memory map, however redesigned as
+
+0000 - 0100 -> Start up code
+0100 - 0200 -> Stack
+0200 - 0300 -> Library functions
+0300 - E000 -> Free RAM
+E000 - FFFF -> Program code
+
+--------------------------------
+0000 - 0100 -> Start up code
+0100 - 0200 -> Stack
+0200 - 0300 -> Library functions
+0300 - 03C8 -> VRAM
+03C8 - E000 -> Free RAM
+E000 - FFFF -> Program code

@@ -164,7 +164,7 @@ int assemble_instruction(char* line, int* line_number, unsigned char* machine_co
     char* val = strtok(NULL, " ");
 
     if(ins == NULL && reg == NULL && val == NULL) return 0;
-    if(ins == NULL || reg == NULL && strcmp(ins, "ret") && strcmp(ins, "mul") && strcmp(ins, "div") && strcmp(ins, "hlt") && strcmp(ins, "nop")){
+    if(ins == NULL || reg == NULL && strcmp(ins, "ret") && strcmp(ins, "nop") && strcmp(ins, "mul") && strcmp(ins, "div") && strcmp(ins, "hlt") && strcmp(ins, "nop")){
       char err[32];
       snprintf(err, 32, "%s %s, %s", (ins ? ins : ""), (reg ? reg : ""), (val ? val : ""));
       throw_error("valid instruction", err, *line_number);
@@ -450,7 +450,7 @@ int assemble_instruction(char* line, int* line_number, unsigned char* machine_co
       
       machine_code[0] = 0xA1;
       machine_code[1] = register_to_machine_code(reg);
-      machine_code[2] = register_to_machine_code(val);
+      machine_code[2] = 0x0;
       machine_code[3] = 0x0;
       // printf("%s %s --> 0x%X 0x%X 0x%X 0x%X\n", ins, (reg ? reg : ""), machine_code[0], machine_code[1], machine_code[2], machine_code[3]);
       
@@ -553,7 +553,7 @@ int main(int argc, char* argv[]){
   char line[256];
 
   FILE* input_file = fopen(input_file_name, "r");
-  if(input_file == NULL) throw_error("valid/existing input file", input_file_name, line_number);
+  if(input_file == NULL) throw_error("valid input file", input_file_name, line_number);
   FILE* output_file = fopen(output_file_name, "wb");
 
   unsigned char machine_code[4];

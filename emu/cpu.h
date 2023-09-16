@@ -43,7 +43,7 @@ enum opcodes{
   INS_POP_REG = 0x90, // pop ax
 
   INS_AND_REG = 0xA0, // and ax, bx
-  INS_NOT_REG = 0xA1, // not ax, bx
+  INS_NOT_REG = 0xA1, // not ax
   INS_OR_REG  = 0xA2, // or ax, bx
   INS_XOR_REG = 0xA3, // xor ax, bx
 

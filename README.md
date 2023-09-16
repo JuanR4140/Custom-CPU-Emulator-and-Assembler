@@ -48,9 +48,9 @@ where the user program will be loaded at.
 - [ ] Done
 
 ### Assembler
-- [X] Implementing instruction set
-- [X] Implementing assembly to machine code
-- [X] Implementing writing machine code to file
-- [X] Implementing optional code offsets
+- [X] Implemented instruction set
+- [X] Implemented assembly to machine code
+- [X] Implemented writing machine code to file
+- [X] Implemented optional code offsets
 
 - [X] Done

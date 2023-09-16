@@ -11,15 +11,5 @@ int main(void) {
   for(;;){
     exec(&memory, &cpu);
   }
-  //drawScreen(&memory);
-  
-  /*exec(&memory, &cpu);
-  printf("value of ax: %i\n", cpu.ax);*/
-  /*for(int i = 0; i < HEIGHT; i++){
-    for(int j = 0; j < WIDTH; j++){
-      printf("#");
-    }
-    printf("\n");
-  }*/
   return 0;
 }

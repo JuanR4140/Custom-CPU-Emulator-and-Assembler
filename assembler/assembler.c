@@ -121,7 +121,7 @@ void store_label(char* line, Label* symbol_table, int* table_size, int* current_
   if((pos = find_character(line_copy, strlen(line_copy), ':')) != -1){
     line_copy[pos] = '\0';
     if(check_label_redefinition(symbol_table, table_size, line_copy)){
-      char err[128];
+      char err[512];
       sprintf(err, "redefinition of %s", line_copy);
       throw_error("unique label", err, line_number);
     }
@@ -541,7 +541,7 @@ int assemble_instruction(char* line, int* line_number, unsigned char* machine_co
   return 0;
 }
 
-int assembler(int argc, char* argv[]){
+int main(int argc, char* argv[]){
   if(argc != 3 && argc != 4){
     printf("Usage: %s input_file output_file\n", argv[0]);
     return 1;
@@ -553,6 +553,7 @@ int assembler(int argc, char* argv[]){
   char line[256];
 
   FILE* input_file = fopen(input_file_name, "r");
+  if(input_file == NULL) throw_error("valid/existing input file", input_file_name, line_number);
   FILE* output_file = fopen(output_file_name, "wb");
 
   unsigned char machine_code[4];

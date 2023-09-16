@@ -5,7 +5,7 @@
 - [About](#about)
 - [Memory layout](#memory-layout)
 - [General assembling](#general-assembling)
-- [Assembling for CPU]()
+- [Assembling for CPU](#assembling-for-cpu)
 - [MOV](#mov)
 - [STR](#str)
 - [CMP](#cmp)

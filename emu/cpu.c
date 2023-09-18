@@ -206,6 +206,27 @@ void exec(Memory* memory, CPU* cpu){
       break;
     }
 
+    case INS_CALL:{
+      Byte unused = fetchByte(memory, cpu);
+      Word val = fetchWord(memory, cpu);
+
+      cpu->SP--;
+      writeWord(memory, cpu->SP, cpu->PC);
+      cpu->PC = val;
+      break;
+    }
+    // Will debug CALL and RET soon. Mostly RET.
+    case INS_RET:{
+      Byte unused = fetchByte(memory, cpu);
+      Word val = fetchWord(memory, cpu);
+
+      cpu->SP += val;
+      Word adr = readWord(memory, cpu->SP);
+      cpu->SP++;
+      cpu->PC = adr;
+      break;
+    }
+
     case INS_ADD_VAL:{
       Byte reg = fetchByte(memory, cpu);
       Word val = fetchWord(memory, cpu);

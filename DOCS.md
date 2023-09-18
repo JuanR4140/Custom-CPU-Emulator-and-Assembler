@@ -61,11 +61,10 @@ Here is an example code:
 ```
 Coming soon..
 ```
-
-Reading input is another story. When a user presses the keyboard, memory location `0x3CB`
-will be turned to `0x1` for one cycle, before turning back to `0x0`. Memory location
-`0x3CA` will store the most latest key pressed. You can read `0x3CB` to detect a new keypress,
-then read `0x3CA` to get the key. 
+Reading input is another story. When a user presses a key on the keyboard, memory location `0x3CB`
+will be turned high to `0x1`. It is your job as a developer to read `0x3CB` and turn it low to `0x0`
+to "acknowledge" the read key. You will not be able to read more keys until you turn `0x3CB` low to `0x0`.
+Once acknowledged, you can read memory location `0x3CA`, which stores the most latest key pressed.
 
 Here is an example code:
 ```

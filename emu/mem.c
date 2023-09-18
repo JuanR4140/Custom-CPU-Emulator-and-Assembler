@@ -16,7 +16,10 @@ void load_program(char* program_name, int starting_address, Memory* memory){
   long program_size = ftell(program);
   fseek(program, 0, SEEK_SET);
   char program_buffer[program_size];
-  fread(program_buffer, 1, program_size, program);
+  int bytes_written =fread(program_buffer, 1, program_size, program);
+  if(bytes_written < program_size){
+    throw_missing_file(program_name);
+  }
   int program_index = 0;
   for(u32 i = starting_address; i < program_size; i++){
     memory->data[i] = program_buffer[program_index];

@@ -15,6 +15,13 @@ int main(void) {
   initializeMemory(&memory);
   cpu.ax = 0;
   for(;;){
+    memory.data[0x3CB] = 0x0;
+    int ch = getchar();
+    if(ch != ERR){
+      memory.data[0x3CB] = 0x1;
+      memory.data[0x3CA] = ch;
+    }
+    
     exec(&memory, &cpu);
   }
   return 0;

@@ -4,6 +4,7 @@
 
 - [About](#about)
 - [Memory layout](#memory-layout)
+- [Input and Output](#input-and-output)
 - [General assembling](#general-assembling)
 - [Assembling for CPU](#assembling-for-cpu)
 - [MOV](#mov)
@@ -49,6 +50,27 @@ this area in memory is where you'd write to.
 
 Program code is the area in memory the emulator will load your program into. When assembling a program, keep
 the code offset at the default (0xE000), otherwise you could have errors.
+
+## Input and Output
+
+You can print characters or strings using the "standard" library. The `print_char`
+subroutine can be used to print a character at a designated X and Y location, while 
+`print_str` can be used to print a string on the screen, up to n characters.
+
+Here is an example code:
+```
+Coming soon..
+```
+
+Reading input is another story. When a user presses the keyboard, memory location `0x3CB`
+will be turned to `0x1` for one cycle, before turning back to `0x0`. Memory location
+`0x3CA` will store the most latest key pressed. You can read `0x3CB` to detect a new keypress,
+then read `0x3CA` to get the key. 
+
+Here is an example code:
+```
+Coming soon..
+```
 
 ## General assembling
 

@@ -203,6 +203,7 @@ void exec(Memory* memory, CPU* cpu){
       Word val = fetchWord(memory, cpu);
 
       if(!cpu->N && !cpu->Z) cpu->PC = val;
+      break;
     }
 
     case INS_ADD_VAL:{

@@ -77,6 +77,6 @@ typedef struct CPU{
 
 void exec(Memory* memory, CPU* cpu);
 void initializeCPU(CPU* cpu);
-void drawScreen(Memory* memory);
+void drawScreen(Memory* memory, CPU* cpu);
 
 #endif

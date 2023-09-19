@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "mem.h"
 #include "cpu.h"
 
@@ -16,15 +17,26 @@ void load_program(char* program_name, int starting_address, Memory* memory){
   long program_size = ftell(program);
   fseek(program, 0, SEEK_SET);
   char program_buffer[program_size];
-  int bytes_written =fread(program_buffer, 1, program_size, program);
-  if(bytes_written < program_size){
+  int bytes_read = fread(program_buffer, 1, program_size, program);
+  if(bytes_read < program_size){
     throw_missing_file(program_name);
   }
-  int program_index = 0;
-  for(u32 i = starting_address; i < program_size; i++){
+
+  int program_address = starting_address;
+  for(int i = 0; i < program_size; i++){
+    memory->data[program_address] = program_buffer[i];
+    program_address++;
+  }
+
+  // I AM AN IDIOT I SHOULD NOT BE A PROGRAMMER.
+  /*int program_index = 0;
+  for(int i = starting_address; i < program_size; i++){
     memory->data[i] = program_buffer[program_index];
     program_index++;
-  }
+  }*/
+  // printf("Program index: %d\nProgram_size: %ld\n", program_index, program_size);
+  // printf("program_index: %d\nRead %d bytes from %s.\n", program_index, bytes_read, program_name);
+  // usleep(1000 * 1000);
   fclose(program);
 }
 
@@ -55,6 +67,8 @@ void initializeMemory(Memory* memory){
   fclose(vram_prog);*/
 
   load_program("./emu/core/vram.out", 0x0, memory);
+  load_program("./emu/core/jmp_to_code.out", 0x20, memory);
+  load_program("./emu/slot/cartridge.out", 0xE000, memory);
   
   // Hardcode CPU instructions at 0?
 

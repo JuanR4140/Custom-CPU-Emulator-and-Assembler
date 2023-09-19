@@ -2,8 +2,9 @@
 #include "mem.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <curses.h>
 
-void drawScreen(Memory* memory);
+void drawScreen(Memory* memory, CPU* cpu);
 
 Byte fetchByte(Memory* memory, CPU* cpu){
   Byte data = memory->data[cpu->PC];
@@ -374,46 +375,26 @@ void exec(Memory* memory, CPU* cpu){
     }
 
     case INS_HLT:{
-      for(;;);
+      endwin();
+      drawScreen(memory, cpu);
+      exit(0);
       break;
     }
 
     case INS_NOP:{
+      Byte unused1 = fetchByte(memory, cpu);
+      Word unused2 = fetchWord(memory, cpu);
       break;
     }
     
   }
-
-  /*switch(memory->data[cpu->PC]){
-    case INS_MOV_VAL:{
-      Byte reg = memory->data[cpu->PC+1];
-      Word val = (memory->data[cpu->PC+3] << 8) | memory->data[cpu->PC+2];
-      // printf("MACHINE CODE: %X %X %X\n", INS_MOV_VAL, reg, val);
-      switch(reg){
-        case 0x0:{ // ax
-          cpu->ax = val;
-          break;
-        }
-        case 0x1:{
-          cpu->bx = val;
-          break;
-        }
-        case 0x2:{
-          cpu->cx = val;
-          break;
-        }
-        case 0x3:{
-          cpu->dx = val;
-          break;
-        }
-      }
-      break;
-    }
-  }*/
   
 }
 
-void drawScreen(Memory* memory){
+void drawScreen(Memory* memory, CPU* cpu){
+  endwin();
+  system("clear");
+  printf("PC: 0x%X\n", cpu->PC);
   Word vram = 0x300;
   for(u32 i = 0; i < HEIGHT; i++){
     for(int j = 0; j < WIDTH; j++){
@@ -422,6 +403,7 @@ void drawScreen(Memory* memory){
     }
     printf("\n");
   }
+  initscr();
 }
 
 void initializeCPU(CPU* cpu){

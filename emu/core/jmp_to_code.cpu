@@ -1,0 +1,12 @@
+_main:
+    jmp _main
+
+        ;;; Made for use within "CPU Something"
+        ;;; Title: "Jump To Code"
+        ;;; Author: "JuanR4140"
+        ;;; Desc: "This is an easy one. By assembling
+        ;;;        the program with an offset of 0xE000,
+        ;;;        _main will be resolved as 0xE000. That
+        ;;;        means that when loading the program at, 
+        ;;;        say, 0x40, jmp _main will give program
+        ;;;        execution to the user program."

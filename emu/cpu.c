@@ -428,6 +428,6 @@ void initializeCPU(CPU* cpu){
   cpu->ax = cpu->bx = cpu->cx = cpu->dx = 0;
   cpu->ah = cpu->al = cpu->bh = cpu->bl = cpu->ch = cpu->cl = cpu->dh = cpu->dl = 0;
   cpu->PC = 0x0;
-  cpu->SP = 0x100;
+  cpu->SP = 0x200;
   cpu->C = cpu->Z = cpu->I = cpu->D = cpu->B = cpu->V = cpu->N = 0;
 }

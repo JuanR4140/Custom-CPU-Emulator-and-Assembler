@@ -234,6 +234,14 @@ void exec(Memory* memory, CPU* cpu){
       break;
     }
 
+    case INS_ADD_REG:{
+      Byte reg = fetchByte(memory, cpu);
+      Byte reg2 = fetchByte(memory, cpu);
+      Byte unused = fetchByte(memory, cpu);
+      *(registers[reg]) += *(registers[reg2]);
+      break;
+    }
+
     case INS_SUB_VAL:{
       Byte reg = fetchByte(memory, cpu);
       Word val = fetchWord(memory, cpu);
@@ -241,24 +249,136 @@ void exec(Memory* memory, CPU* cpu){
       break;
     }
 
-    /*case INS_CMP_VAL:{
+    case INS_SUB_REG:{
       Byte reg = fetchByte(memory, cpu);
-      Word val = fetchWord(memory, cpu);
-      cpu->Z = ( *registers[reg] - val ) == 0;
+      Byte reg2 = fetchByte(memory, cpu);
+      Byte unused = fetchByte(memory, cpu);
+      *(registers[reg]) -= *(registers[reg2]);
       break;
-    }*/
+    }
 
-    /*case INS_JNE:{
+    case INS_MUL_REG:{
+      Byte reg = fetchByte(memory, cpu);
+      Word unused = fetchWord(memory, cpu);
+
+      int result = cpu->ax * *(registers[reg]);
+
+      cpu->dx = (result >> 16) & 0xFFFF;
+      cpu->ax = (result & 0xFFFF);
+      break;
+    }
+
+    case INS_DIV_REG:{
+      Byte reg = fetchByte(memory, cpu);
+      Word unused = fetchWord(memory, cpu);
+
+      cpu->dx = cpu->ax / *(registers[reg]);
+      cpu->ax = cpu->ax % *(registers[reg]);
+      break;
+    }
+
+    case INS_PUSH_VAL:{
       Byte unused = fetchByte(memory, cpu);
       Word val = fetchWord(memory, cpu);
-      if(!cpu->Z) cpu->PC = val;
+
+      cpu->SP--;
+      writeWord(memory, cpu->SP, val);
       break;
-    }*/
+    }
+
+    case INS_PUSH_REG:{
+      Byte reg = fetchByte(memory, cpu);
+      Word unused = fetchWord(memory, cpu);
+
+      cpu->SP--;
+      writeWord(memory, cpu->SP, *(registers[reg]));
+      break;
+    }
+
+    case INS_POP_REG:{
+      Byte reg = fetchByte(memory, cpu);
+      Word unused = fetchWord(memory, cpu);
+
+      *(registers[reg]) = readWord(memory, cpu->SP);
+      cpu->SP++;
+      break;
+    }
+
+    case INS_AND_REG:{
+      Byte reg = fetchByte(memory, cpu);
+      Byte reg2 = fetchByte(memory, cpu);
+      Byte unused = fetchByte(memory, cpu);
+
+      *(registers[reg]) &= *(registers[reg2]);
+      break;
+    }
+
+    case INS_NOT_REG:{
+      Byte reg = fetchByte(memory, cpu);
+      Word unused = fetchWord(memory, cpu);
+
+      *(registers[reg]) = ~*(registers[reg]);
+      break;
+    }
+
+    case INS_OR_REG:{
+      Byte reg = fetchByte(memory, cpu);
+      Byte reg2 = fetchByte(memory, cpu);
+      Byte unused = fetchByte(memory, cpu);
+
+      *(registers[reg]) |= *(registers[reg2]);
+      break;
+    }
+
+    case INS_XOR_REG:{
+      Byte reg = fetchByte(memory, cpu);
+      Byte reg2 = fetchByte(memory, cpu);
+      Byte unused = fetchByte(memory, cpu);
+
+      *(registers[reg]) ^= *(registers[reg2]);
+      break;
+    }
+
+    case INS_SHR_VAL:{
+      Byte reg = fetchByte(memory, cpu);
+      Word val = fetchWord(memory, cpu);
+
+      *(registers[reg]) >>= val;
+      break;
+    }
+
+    case INS_SHR_REG:{
+      Byte reg = fetchByte(memory, cpu);
+      Byte reg2 = fetchByte(memory, cpu);
+      Byte unused = fetchByte(memory, cpu);
+
+      *(registers[reg]) >>= *(registers[reg2]);
+      break;
+    }
+
+    case INS_SHL_VAL:{
+      Byte reg = fetchByte(memory, cpu);
+      Word val = fetchWord(memory, cpu);
+
+      *(registers[reg]) <<= val;
+      break;
+    }
+
+    case INS_SHL_REG:{
+      Byte reg = fetchByte(memory, cpu);
+      Byte reg2 = fetchByte(memory, cpu);
+      Byte unused = fetchByte(memory, cpu);
+
+      *(registers[reg]) <<= *(registers[reg2]);
+      break;
+    }
 
     case INS_HLT:{
-      printf("HLT !!\n");
-      drawScreen(memory);
-      exit(0);
+      for(;;);
+      break;
+    }
+
+    case INS_NOP:{
       break;
     }
     

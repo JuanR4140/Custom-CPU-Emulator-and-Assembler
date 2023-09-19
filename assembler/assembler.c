@@ -84,9 +84,9 @@ unsigned char register_to_machine_code(char* reg){
     return 0x2;
   }else if(strcmp(reg, "dx") == 0){
     return 0x3;
-  else if(strcmp(reg, "bp") == 0){
+  }else if(strcmp(reg, "bp") == 0){
     return 0x4;
-  else if(strcmp(reg, "sp") == 0){
+  }else if(strcmp(reg, "sp") == 0){
     return 0x5;
   }else{
     // printf("ERROR REGISTER EXPECTED.\n");

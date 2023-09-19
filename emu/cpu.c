@@ -44,7 +44,7 @@ void LDASetStatus(CPU* cpu){
 
 void exec(Memory* memory, CPU* cpu){
 
-  Word* registers[] = {&cpu->ax, &cpu->bx, &cpu->cx, &cpu->dx};
+  Word* registers[] = {&cpu->ax, &cpu->bx, &cpu->cx, &cpu->dx, &cpu->BP, &cpu->SP};
   
   Byte ins = fetchByte(memory, cpu);
   switch(ins){

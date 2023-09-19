@@ -62,6 +62,7 @@ enum opcodes{
 
 typedef struct CPU{
   Word PC; // Program Counter
+  Word BP; // Base Pointer
   Word SP; // Stack Pointer
   Word ax, bx, cx, dx; // General purpose registers
   Byte ah, al, bh, bl, ch, cl, dh, dl;

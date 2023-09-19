@@ -84,6 +84,10 @@ unsigned char register_to_machine_code(char* reg){
     return 0x2;
   }else if(strcmp(reg, "dx") == 0){
     return 0x3;
+  else if(strcmp(reg, "bp") == 0){
+    return 0x4;
+  else if(strcmp(reg, "sp") == 0){
+    return 0x5;
   }else{
     // printf("ERROR REGISTER EXPECTED.\n");
     throw_error("valid register", reg, line_number);
@@ -179,7 +183,7 @@ int assemble_instruction(char* line, int* line_number, unsigned char* machine_co
         machine_code[1] = register_to_machine_code(reg);
         machine_code[2] = decimal & 0xFF;
         machine_code[3] = (decimal >> 8) & 0xFF;
-      }else if(strcmp(val, "ax") == 0 || strcmp(val, "bx") == 0 || strcmp(val, "cx") == 0 || strcmp(val, "dx") == 0){
+      }else if(strcmp(val, "ax") == 0 || strcmp(val, "bx") == 0 || strcmp(val, "cx") == 0 || strcmp(val, "dx") == 0 || strcmp(val, "bp") == 0 || strcmp(val, "sp") == 0){
         // Moving reg to reg.
         machine_code[0] = 0x01;
         machine_code[1] = register_to_machine_code(reg);
@@ -368,7 +372,7 @@ int assemble_instruction(char* line, int* line_number, unsigned char* machine_co
       
     }else if(strcmp(ins, "add") == 0){
 
-      if(strcmp(val, "ax") == 0 || strcmp(val, "bx") == 0 || strcmp(val, "cx") == 0 || strcmp(val, "dx") == 0){
+      if(strcmp(val, "ax") == 0 || strcmp(val, "bx") == 0 || strcmp(val, "cx") == 0 || strcmp(val, "dx") == 0 || strcmp(val, "bp") == 0 || strcmp(val, "sp") == 0){
         machine_code[0] = 0x41;
         machine_code[1] = register_to_machine_code(reg);
         machine_code[2] = register_to_machine_code(val);
@@ -384,7 +388,7 @@ int assemble_instruction(char* line, int* line_number, unsigned char* machine_co
       
     }else if(strcmp(ins, "sub") == 0){
 
-      if(strcmp(val, "ax") == 0 || strcmp(val, "bx") == 0 || strcmp(val, "cx") == 0 || strcmp(val, "dx") == 0){
+      if(strcmp(val, "ax") == 0 || strcmp(val, "bx") == 0 || strcmp(val, "cx") == 0 || strcmp(val, "dx") == 0 || strcmp(val, "bp") == 0 || strcmp(val, "sp") == 0){
         machine_code[0] = 0x51;
         machine_code[1] = register_to_machine_code(reg);
         machine_code[2] = register_to_machine_code(val);
@@ -416,7 +420,7 @@ int assemble_instruction(char* line, int* line_number, unsigned char* machine_co
       
     }else if(strcmp(ins, "push") == 0){
       
-      if(strcmp(reg, "ax") == 0 || strcmp(reg, "bx") == 0 || strcmp(reg, "cx") == 0 || strcmp(reg, "dx") == 0){
+      if(strcmp(reg, "ax") == 0 || strcmp(reg, "bx") == 0 || strcmp(reg, "cx") == 0 || strcmp(reg, "dx") == 0 || strcmp(reg, "bp") == 0 || strcmp(reg, "sp") == 0){
         machine_code[0] = 0x81;
         machine_code[1] = register_to_machine_code(reg);
         machine_code[2] = 0x0;

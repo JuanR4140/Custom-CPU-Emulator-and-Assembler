@@ -63,7 +63,10 @@ void exec(Memory* memory, CPU* cpu){
       Byte reg_src = fetchByte(memory, cpu);
       Byte unused = fetchByte(memory, cpu);
 
-      *(registers[reg_dst]) = reg_src; 
+      // OH MY GOD?
+      // *(registers[reg_dst]) = reg_src;
+
+      *(registers[reg_dst]) = *(registers[reg_src]);
       break;
     }
 
@@ -211,7 +214,7 @@ void exec(Memory* memory, CPU* cpu){
       Byte unused = fetchByte(memory, cpu);
       Word val = fetchWord(memory, cpu);
 
-      cpu->SP--;
+      cpu->SP -= 2;
       writeWord(memory, cpu->SP, cpu->PC);
       cpu->PC = val;
       break;
@@ -221,9 +224,9 @@ void exec(Memory* memory, CPU* cpu){
       Byte unused = fetchByte(memory, cpu);
       Word val = fetchWord(memory, cpu);
 
-      cpu->SP += val;
       Word adr = readWord(memory, cpu->SP);
-      cpu->SP++;
+      cpu->SP += 2;
+      cpu->SP += val;
       cpu->PC = adr;
       break;
     }
@@ -282,7 +285,7 @@ void exec(Memory* memory, CPU* cpu){
       Byte unused = fetchByte(memory, cpu);
       Word val = fetchWord(memory, cpu);
 
-      cpu->SP--;
+      cpu->SP -= 2;
       writeWord(memory, cpu->SP, val);
       break;
     }
@@ -291,7 +294,7 @@ void exec(Memory* memory, CPU* cpu){
       Byte reg = fetchByte(memory, cpu);
       Word unused = fetchWord(memory, cpu);
 
-      cpu->SP--;
+      cpu->SP -= 2;
       writeWord(memory, cpu->SP, *(registers[reg]));
       break;
     }
@@ -301,7 +304,7 @@ void exec(Memory* memory, CPU* cpu){
       Word unused = fetchWord(memory, cpu);
 
       *(registers[reg]) = readWord(memory, cpu->SP);
-      cpu->SP++;
+      cpu->SP += 2;
       break;
     }
 
@@ -395,6 +398,12 @@ void drawScreen(Memory* memory, CPU* cpu){
   endwin();
   system("clear");
   printf("PC: 0x%X\n", cpu->PC);
+  printf("SP: 0x%X ('%c')\n", cpu->SP, memory->data[cpu->SP]);
+  printf("BP: 0x%X ('%c')\n", cpu->BP, memory->data[cpu->BP]);
+  printf("AX: 0x%X\n", cpu->ax);
+  printf("BX: 0x%X\n", cpu->bx);
+  printf("CX: 0x%X\n", cpu->cx);
+  printf("DX: 0x%X\n", cpu->dx);
   Word vram = 0x300;
   for(u32 i = 0; i < HEIGHT; i++){
     for(int j = 0; j < WIDTH; j++){

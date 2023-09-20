@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <ncurses.h>
 #include "mem.h"
 #include "cpu.h"
 
 void throw_missing_file(char* file){
+  endwin();
   printf("Error.\nCould not read program '%s', which is needed by CPU.\n", file);
   exit(1);
 }

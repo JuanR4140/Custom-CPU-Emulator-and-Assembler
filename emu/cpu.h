@@ -4,20 +4,23 @@
 #include "mem.h"
 
 enum opcodes{
-  INS_MOV_VAL = 0x00, // mov ax, 5
+  /*INS_MOV_VAL = 0x00, // mov ax, 5
   INS_MOV_REG = 0x01, // mov ax, bx
-  INS_MOV_ADR = 0x02, // mov ax, $100
+  INS_MOV_ADR = 0x02, // mov ax, $100*/
 
-  INS_STR_REG = 0x10, // str ax, bx
-  INS_STH_REG = 0x11, // sth ax, bx (high 8 bits)
-  INS_STL_REG = 0x12, // stl ax, bx (low  8 bits)
-  INS_STR_ADR = 0x13, // str ax, $100
-  INS_STH_ADR = 0x14, // sth ax, $100 (high 8 bits)
-  INS_STL_ADR = 0x15, // stl ax, $100 (low  8 bits)
+  INS_MOV_REG_VAL = 0x00, // mov ax, 5
+  INS_MOV_REG_REG = 0x01, // mov ax, bx
+  INS_MOV_REG_PTR_REG = 0x02, // mov ax, [bx]
+  INS_MOV_PTR_REG_REG = 0x03, // mov [bx], ax
+  INS_MOV_REG_PTR_REG_OFFSET_VAL = 0x04, // mov ax, [bx + 5]
+  INS_MOV_REG_PTR_REG_OFFSET_REG = 0x05, // mov ax, [bx + cx]
+  INS_MOV_PTR_REG_OFFSET_VAL_REG = 0x06, // mov [bx + 5], ax
+  INS_MOV_PTR_REG_OFFSET_REG_REG = 0x07, // mov [bx + cx], ax
+  INS_MOV_REG_ADR = 0x08, // mov ax, [0x100]
+  INS_MOV_ADR_REG = 0x09, // mov [0x100], ax
 
   INS_CMP_VAL = 0x20, // cmp ax, 5
   INS_CMP_REG = 0x21, // cmp ax, bx
-  INS_CMP_ADR = 0x22, // cmp ax, $100
 
   INS_JMP = 0x30, // jmp label
   INS_JE  = 0x31, // je label

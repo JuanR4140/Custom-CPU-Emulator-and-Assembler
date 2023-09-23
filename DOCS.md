@@ -8,7 +8,6 @@
 - [General assembling](#general-assembling)
 - [Assembling for CPU](#assembling-for-cpu)
 - [MOV](#mov)
-- [STR](#str)
 - [CMP](#cmp)
 - [JUMPING](#jumping)
 - [PROCEDURES](#procedures)
@@ -121,43 +120,37 @@ at memory location 0xE000! (Haha! Get it? Like you're putting a cartridge into a
 
 `mov dst, src`
 
-Let's learn some instructions then! The most basic of instructions is the `mov` or move instruction, which moves a value into a register. There are 3 types of `mov` instructions.
+Let's learn some instructions then! The `mov`, or move, instruction, moves a value into a register. The `mov` instruction is essential to learn and understand as it's the instruction you use to deal with memory. There are 10 types of `mov` instructions.
 
-1. `mov ax, 0x5` moves the literal value `0x5` into register `ax`.
+1. `mov ax, 0x5` loads the literal value `0x5` into register `ax`.
 
-1. `mov ax, bx` moves the register `bx` into register `ax`.
+1. `mov ax, bx` loads the register `bx` into register `ax`.
 
-1. `mov ax, $0x400` moves the contents of the address `$0x400` into register `ax`.
+1. `mov ax, [bx]` loads the value at the memory location pointed to by `bx` into `ax`.
 
-## STR
+1. `mov [ax], bx` stores the value in `bx` into the memory location pointed to by `ax`.
 
-`str src, dst`
+1. `mov ax, [bx + 4]` loads the value at `[bx + 4]` into `ax`.
 
-`str` stores the contents of a register into a memory address or another register. There are 6 types of `str` instructions.
+1. `mov ax, [bx + cx]` loads the value at `[bx + cx]` into `ax`
 
-1. `str ax, bx` stores the contents of register `ax` into the contents of the address held by register `bx`.
+1. `mov [bx + 4], ax` stores the value in `ax` into `[bx + 4]`.
 
-1. `sth ax, bx` stores the contents of register `ax`'s high 8 bits into the contents of the address held by register `bx`.
+1. `mov [bx + cx], ax` stores the value in `ax` into `[bx + cx]`
 
-1. `stl ax, bx` stores the contents of register `ax`'s low 8 bits into the contents of the address held by reigster `bx`.
+1. `mov ax, [0x400]` loads the contents of the address `0x400` into register `ax`.
 
-1. `str ax, $0x400` stores the contents of register `ax` into the address `$0x400`.
-
-1. `sth, ax, $0x400` stores the contents of register `ax`'s high 8 bits into the address `$0x400`.
-
-1. `stl ax, $0x400` stores the contents of register `ax`'s low 8 bits into the address `$0x400`.
+1. `mov [0x400], ax` stores the value in `ax` into memory address `0x400`.
 
 ## CMP
 
 `cmp reg, val`
 
-`cmp` compares a value with a register and sets the appropiate flags. It is used in pair with jumping/branching instructions. There are 3 types of `cmp` instructions.
+`cmp` compares a value with a register and sets the appropiate flags. It is used in pair with jumping/branching instructions. There are 2 types of `cmp` instructions.
 
 1. `cmp ax, 0x5` compares the register `ax` with the literal `0x5`.
 
 1. `cmp ax, bx` compares the register `ax` with the register `bx`.
-
-1. `cmp ax, $0x400` compares the register `ax` with the address `$0x400`.
 
 ## JUMPING
 
@@ -165,7 +158,7 @@ Let's learn some instructions then! The most basic of instructions is the `mov` 
 
 `jmp` (and similar instructions) are used in pair with the `cmp` instruction, deciding whether to jump or not based on certain flags set by `cmp`. There are 5 types of `jmp` instructions.
 
-1. `jmp label` unconditionally jumps to label.
+1. `jmp label` unconditionally jumps to `label`.
 
 1. `je label` jumps to `label` if the result of the previous `cmp` were equal.
 
@@ -185,7 +178,52 @@ Let's learn some instructions then! The most basic of instructions is the `mov` 
 
 1. `call label` saves the current address on the stack and jumps to `label`
 
-1. `ret` pops the previously saved address and jumps to it, resuming execution. If you `push`ed some values onto the stack for procedure variables, you **must** `ret [bytes]` to clean the stack. (Procedures are "callee cleans up").
+1. `ret` pops the previously saved address and jumps to it, resuming execution. If you `push`ed some values onto the stack as
+arguments, keep in mind whether you'll have to clean up the stack aftewards. There are two ways to clean the stack, "callee cleans up" and "caller cleans up".
+
+This is a "callee cleans up" subroutine.
+```
+_main:
+    push 0x5
+    call sub
+    ;; Notice we can proceed as normal
+
+sub:
+    push bp
+    mov bp, sp
+
+    mov ax, [bp + 4]
+
+    ;;; Do something...
+
+    mov sp, bp
+    pop bp
+    ret 2       ;; Notice we pop 2 bytes off the stack, then return.
+```
+
+This is a "caller cleans up" subroutine.
+```
+_main:
+    push 0x5
+    call sub
+    pop ax      ;; Notice you have to pop off the arguments you pushed.
+
+sub:
+    push bp
+    mov bp, sp
+
+    mov ax, [bp + 4]
+
+    ;;; Do something...
+
+    mov sp, bp
+    pop bp
+    ret         ;; Notice we return without popping anything
+```
+
+No way is better than the other, and each has its own advantages/disadvantages, so use whichever one fits your usecase.
+
+**Keep in mind the "standard" library subroutines are "callee cleans up", so you don't have to clean the stack yourself.**
 
 ## ARITHMETIC
 

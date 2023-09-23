@@ -95,6 +95,17 @@ unsigned char register_to_machine_code(char* reg){
   }
 }
 
+void left_shift(char* line, int len, int times){
+  int offset = times;
+  while(times != 0){
+    for(int i = 1; i < len; i++){
+      line[i-1] = line[i];
+    }
+    times--;
+  }
+  line[strlen(line)-offset] = '\0';
+}
+
 int find_character(char* line, int size, char character){
   for(int i = 0; i < size; i++){
     if(line[i] == character) return i;
@@ -142,7 +153,86 @@ void store_label(char* line, Label* symbol_table, int* table_size, int* current_
   return;
 }
 
+int value_is_register(char* val){
+    if(strcmp(val, "ax") == 0 || strcmp(val, "bx") == 0 || strcmp(val, "cx") == 0 || strcmp(val, "dx") == 0 || strcmp(val, "bp") == 0 || strcmp(val, "sp") == 0){
+        return 1;
+    }
+    return 0;
+}
+
+char* get_instruction(char* line){
+  char* output = malloc(256);
+  strcpy(output, line);
+
+  if(strlen(output) == 0){
+    free(output);
+    return NULL;
+  }
+
+  int space = find_character(output, strlen(output), ' ');
+  if(space == -1){
+    return output;
+  }
+
+  output[space] = '\0';
+  return output;
+
+}
+
+char* get_register(char* line){
+  char* output = malloc(256);
+  strcpy(output, line);
+
+  if(strlen(output) == 0){
+    free(output);
+    return NULL;
+  }
+
+
+  int space = find_character(output, strlen(output), ' ');
+  if(space == -1){
+    free(output);
+    return NULL;
+  }
+  space += 1;
+  left_shift(output, strlen(output), space);
+  int comma = find_character(output, strlen(output), ',');
+  int space2 = find_character(output, strlen(output), ' ');
+  /*if(comma == -1){
+    free(output);
+    return NULL;
+  }*/
+
+  if(comma == -1 && space2 == -1){
+    return output;
+  }
+
+  output[comma] = '\0';
+  return output;
+}
+
+char* get_value(char* line){
+  char* output = malloc(256);
+  strcpy(output, line);
+
+  if(strlen(output) == 0){
+    free(output);
+    return NULL;
+  }  
+
+  int comma = find_character(output, strlen(output), ',');
+  if(comma == -1){
+    free(output);
+    return NULL;
+  }
+  comma += 2;
+  left_shift(output, strlen(output), comma);
+  return output;
+}
+
 int assemble_instruction(char* line, int* line_number, unsigned char* machine_code, Label* symbol_table, int* table_size, int* current_address){
+  static int temp = 0;
+  
   char line_copy[256];
   strcpy(line_copy, line);
   int pos = 0;
@@ -163,9 +253,10 @@ int assemble_instruction(char* line, int* line_number, unsigned char* machine_co
   }else if((pos = find_character(line_copy, strlen(line_copy), ',')) != 1){
     // Line is (most likely) instruction, form machine code.
     // printf("%X: %s", *current_address, line_copy);
-    char* ins = strtok(line_copy, " ");
-    char* reg = strtok(NULL, ", ");
-    char* val = strtok(NULL, " ");
+
+    char* ins = get_instruction(line_copy);
+    char* reg = get_register(line_copy);
+    char* val = get_value(line_copy);
 
     if(ins == NULL && reg == NULL && val == NULL) return 0;
     if(ins == NULL || reg == NULL && strcmp(ins, "ret") && strcmp(ins, "nop") && strcmp(ins, "mul") && strcmp(ins, "div") && strcmp(ins, "hlt") && strcmp(ins, "nop")){
@@ -175,87 +266,187 @@ int assemble_instruction(char* line, int* line_number, unsigned char* machine_co
     }
         
     if(strcmp(ins, "mov") == 0){
-      
-      if(find_character(val, strlen(val), '$') != -1){
-        // Moving addr to reg.
-        int decimal = convert_to_decimal(val);
-        machine_code[0] = 0x02;
-        machine_code[1] = register_to_machine_code(reg);
-        machine_code[2] = decimal & 0xFF;
-        machine_code[3] = (decimal >> 8) & 0xFF;
-      }else if(strcmp(val, "ax") == 0 || strcmp(val, "bx") == 0 || strcmp(val, "cx") == 0 || strcmp(val, "dx") == 0 || strcmp(val, "bp") == 0 || strcmp(val, "sp") == 0){
-        // Moving reg to reg.
+
+      // Implement all 9 mov instructions *:)*
+
+      if(find_character(reg, strlen(reg), '[') != -1 && find_character(val, strlen(val), '[') != -1){
+        char err[512];
+        sprintf(err, "%s and %s", reg, val);
+        throw_error("one pointer", err, *line_number);
+      }
+
+      if(find_character(reg, strlen(reg), '[') != -1){
+        /*
+        Register is pointer. Possible values:
+          mov [ax], cx
+          mov [ax + 4], cx
+          mov [ax + bx], cx
+          mov [0x400], cx
+        */
+        int end = find_character(reg, strlen(reg), ']');
+        if(end == -1) throw_error("valid pointer", reg, *line_number);
+        
+        left_shift(reg, strlen(reg), 1); // Get rid of the '['
+        reg[end-1] = '\0'; // Get rid of the ']'
+        // [bx + 4] -> bx + 4
+
+        int add = find_character(reg, strlen(reg), '+');
+        if(add != -1){
+          /*
+          Register is pointer by offset. Possible values:
+            mov [ax + 4], cx
+            mov [ax + bx], cx
+          */
+
+          char* ptr_reg = strtok(reg, " + ");
+          char* ptr_val = strtok(NULL, " + ");
+
+          if(value_is_register(ptr_val)){
+            /*
+              mov [ax + bx], cx
+            */
+
+            machine_code[0] = 0x07;
+            machine_code[1] = register_to_machine_code(ptr_reg);
+            machine_code[2] = register_to_machine_code(ptr_val);
+            machine_code[3] = register_to_machine_code(val);
+          }else{
+            /*
+              mov [ax + 4], cx
+            */
+
+            machine_code[0] = 0x06;
+            machine_code[1] = register_to_machine_code(ptr_reg);
+            machine_code[2] = convert_to_decimal(ptr_val);
+            machine_code[3] = register_to_machine_code(val);
+          }
+
+        }else{
+          /*
+          Register is pointer. Possible values:
+            mov [ax], cx
+            mov [0x400], cx
+          */
+
+          if(value_is_register(reg)){
+            /*
+              mov [ax], cx
+            */
+
+            machine_code[0] = 0x03;
+            machine_code[1] = register_to_machine_code(reg);
+            machine_code[2] = register_to_machine_code(val);
+            machine_code[3] = 0x0;
+          }else{
+            /*
+              mov [0x400], cx
+            */
+            int decimal = convert_to_decimal(reg);
+            machine_code[0] = 0x09;
+            machine_code[1] = decimal & 0xFF;
+            machine_code[2] = (decimal >> 8) & 0xFF;
+            machine_code[3] = register_to_machine_code(val);
+
+          }
+
+        }
+
+      }else if(find_character(val, strlen(val), '[') != -1){
+        /*
+        Value is pointer. Possible values:
+          mov ax, [bx]
+          mov ax, [bx + 4]
+          mov ax, [bx + cx]
+          mov ax, [0x400]
+        */
+
+        int end = find_character(val, strlen(val), ']');
+        if(end == -1) throw_error("valid pointer", val, *line_number);
+
+        left_shift(val, strlen(val), 1); // Get rid of the '['
+        val[end-1] = '\0'; // Get rid of the ']'
+        // [0x400] -> 0x400
+
+        int add = find_character(val, strlen(val), '+');
+        if(add != -1){
+          /*
+          Value is pointer by offset. Possible values:
+            mov ax, [bx + 4]
+            mov ax, [bx + cx]
+          */
+
+          char* ptr_reg = strtok(val, " + ");
+          char* ptr_val = strtok(NULL, " + ");
+
+          if(value_is_register(ptr_val)){
+            /*
+              mov ax, [bx + cx]
+            */
+            machine_code[0] = 0x05;
+            machine_code[1] = register_to_machine_code(reg);
+            machine_code[2] = register_to_machine_code(ptr_reg);
+            machine_code[3] = register_to_machine_code(ptr_val);
+          }else{
+            /*
+              mov ax, [bx + 4]
+            */
+
+            machine_code[0] = 0x04;
+            machine_code[1] = register_to_machine_code(reg);
+            machine_code[2] = register_to_machine_code(ptr_reg);
+            machine_code[3] = convert_to_decimal(ptr_val);
+          }
+
+        }else{
+          /*
+          Value is pointer. Possible values:
+            mov ax, [bx]
+            mov ax, [0x400]
+          */
+
+          if(value_is_register(val)){
+            /*
+              mov ax, [bx]
+            */
+
+            machine_code[0] = 0x02;
+            machine_code[1] = register_to_machine_code(reg);
+            machine_code[2] = register_to_machine_code(val);
+            machine_code[3] = 0x0;
+
+          }else{
+            /*
+              mov ax, [0x400]
+            */
+
+            int decimal = convert_to_decimal(val);
+            machine_code[0] = 0x08;
+            machine_code[1] = register_to_machine_code(reg);
+            machine_code[2] = decimal & 0xFF;
+            machine_code[3] = (decimal >> 8) & 0xFF;
+
+          }
+
+        }
+
+      }else if(value_is_register(val)){
+        /*
+          mov ax, bx
+        */
         machine_code[0] = 0x01;
         machine_code[1] = register_to_machine_code(reg);
         machine_code[2] = register_to_machine_code(val);
         machine_code[3] = 0x0;
       }else{
-        // Assume moving val to reg.
+        /*
+          mov ax, val
+        */
         int decimal = convert_to_decimal(val);
         machine_code[0] = 0x00;
         machine_code[1] = register_to_machine_code(reg);
         machine_code[2] = decimal & 0xFF;
         machine_code[3] = (decimal >> 8) & 0xFF;
       }
-
-      // printf("%s %s, %s --> 0x%X 0x%X 0x%X 0x%X\n", ins, reg, val, machine_code[0], machine_code[1], machine_code[2], machine_code[3]);
-
-    }else if(strcmp(ins, "str") == 0){
-
-      if(find_character(val, strlen(val), '$') != -1){
-        // Storing reg to addr
-        int decimal = convert_to_decimal(val);
-        machine_code[0] = 0x13;
-        machine_code[1] = register_to_machine_code(reg);
-        machine_code[2] = decimal & 0xFF;
-        machine_code[3] = (decimal >> 8) & 0xFF;
-      }else{
-        // Assume storing reg to reg at addr.
-        machine_code[0] = 0x10;
-        machine_code[1] = register_to_machine_code(reg);
-        machine_code[2] = register_to_machine_code(val);
-        machine_code[3] = 0x0;
-      }
-
-      // printf("%s %s, %s --> 0x%X 0x%X 0x%X 0x%X\n", ins, reg, val, machine_code[0], machine_code[1], machine_code[2], machine_code[3]);
-
-    }else if(strcmp(ins, "sth") == 0){
-
-      if(find_character(val, strlen(val), '$') != -1){
-        // Storing high reg to addr
-        int decimal = convert_to_decimal(val);
-        machine_code[0] = 0x14;
-        machine_code[1] = register_to_machine_code(reg);
-        machine_code[2] = decimal & 0xFF;
-        machine_code[3] = (decimal >> 8) & 0xFF;
-      }else{
-        // Assume storing high reg to reg at addr.
-        machine_code[0] = 0x11;
-        machine_code[1] = register_to_machine_code(reg);
-        machine_code[2] = register_to_machine_code(val);
-        machine_code[3] = 0x0;
-      }
-
-      // printf("%s %s, %s --> 0x%X 0x%X 0x%X 0x%X\n", ins, reg, val, machine_code[0], machine_code[1], machine_code[2], machine_code[3]);
-
-    }else if(strcmp(ins, "stl") == 0){
-
-      if(find_character(val, strlen(val), '$') != -1){
-        // Storing low reg to addr
-        int decimal = convert_to_decimal(val);
-        machine_code[0] = 0x15;
-        machine_code[1] = register_to_machine_code(reg);
-        machine_code[2] = decimal & 0xFF;
-        machine_code[3] = (decimal >> 8) & 0xFF;
-      }else{
-        // Assume storing low reg to reg at addr
-        machine_code[0] = 0x12;
-        machine_code[1] = register_to_machine_code(reg);
-        machine_code[2] = register_to_machine_code(val);
-        machine_code[3] = 0x0;
-      }
-
-      // printf("%s %s, %s --> 0x%X 0x%X 0x%X 0x%X\n", ins, reg, val, machine_code[0], machine_code[1], machine_code[2], machine_code[3]);
 
     }else if(strcmp(ins, "cmp") == 0){
 
@@ -538,6 +729,11 @@ int assemble_instruction(char* line, int* line_number, unsigned char* machine_co
     }*/
     
     // // printf("%s %s %s\n", ins, reg, val);
+
+    if(ins != NULL) free(ins);
+    if(reg != NULL) free(reg);
+    if(val != NULL) free(val);
+
     *current_address += 4;
     return 4;
   }

@@ -40,9 +40,9 @@ where the user program will be loaded at.
 - [X] Implemented CPU structure
 - [X] Implemented memory structure
 - [X] Implemented instruction set
-- [ ] Implementing emulating instruction set
-- [ ] Implementing start-up code
-- [ ] Implementing stack
+- [X] Implementing emulating instruction set
+- [X] Implementing start-up code
+- [X] Implementing stack
 - [ ] Implementing "standard lib"
 
 - [ ] Done

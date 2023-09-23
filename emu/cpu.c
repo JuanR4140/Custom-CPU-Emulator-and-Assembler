@@ -48,8 +48,105 @@ void exec(Memory* memory, CPU* cpu){
   
   Byte ins = fetchByte(memory, cpu);
   switch(ins){
+
+    case INS_MOV_REG_VAL:{
+      // mov ax, 5
+      Byte reg = fetchByte(memory, cpu);
+      Word val = fetchWord(memory, cpu);
+
+      *(registers[reg]) = val;
+      break;
+    }
+
+    case INS_MOV_REG_REG:{
+      // mov ax, bx
+      Byte reg_dst = fetchByte(memory, cpu);
+      Byte reg_src = fetchByte(memory, cpu);
+      Byte unused = fetchByte(memory, cpu);
+
+      *(registers[reg_dst]) = *(registers[reg_src]);
+      break;
+    }
+
+    case INS_MOV_REG_PTR_REG:{
+      // mov ax, [bx]
+      Byte reg_dst = fetchByte(memory, cpu);
+      Byte reg_src = fetchByte(memory, cpu);
+      Byte unused = fetchByte(memory, cpu);
+
+      *(registers[reg_dst]) = readWord(memory, *(registers[reg_src]));
+      break;
+    }
+
+    case INS_MOV_PTR_REG_REG:{
+      // mov [bx], ax
+      Byte reg_dst = fetchByte(memory, cpu);
+      Byte reg_src = fetchByte(memory, cpu);
+      Byte unused = fetchByte(memory, cpu);
+
+      writeWord(memory, *(registers[reg_dst]), *(registers[reg_src]));
+      break;
+    }
+
+    case INS_MOV_REG_PTR_REG_OFFSET_VAL:{
+      // mov ax, [bx + 5]
+      Byte reg_dst = fetchByte(memory, cpu);
+      Byte reg_src = fetchByte(memory, cpu);
+      Byte offset = fetchByte(memory, cpu);
+
+      *(registers[reg_dst]) = readWord(memory, *(registers[reg_src]) + offset);
+      break;
+    }
+
+    case INS_MOV_REG_PTR_REG_OFFSET_REG:{
+      // mov ax, [bx + cx]
+      Byte reg_dst = fetchByte(memory, cpu);
+      Byte reg_src = fetchByte(memory, cpu);
+      Byte reg_off = fetchByte(memory, cpu);
+
+      *(registers[reg_dst]) = readWord(memory, *(registers[reg_src]) + *(registers[reg_off]));
+      break;
+    }
+
+    case INS_MOV_PTR_REG_OFFSET_VAL_REG:{
+      // mov [bx + 5], ax
+      Byte reg_dst = fetchByte(memory, cpu);
+      Byte offset = fetchByte(memory, cpu);
+      Byte reg_src = fetchByte(memory, cpu);
+
+      writeWord(memory, *(registers[reg_dst]) + offset, *(registers[reg_src]));
+      break;
+    }
+
+    case INS_MOV_PTR_REG_OFFSET_REG_REG:{
+      // mov [bx + cx], ax
+      Byte reg_dst = fetchByte(memory, cpu);
+      Byte reg_off = fetchByte(memory, cpu);
+      Byte reg_src = fetchByte(memory, cpu);
+
+      writeWord(memory, *(registers[reg_dst]) + *(registers[reg_off]), *(registers[reg_src]));
+      break;
+    }
+
+    case INS_MOV_REG_ADR:{
+      // mov ax, [0x100]
+      Byte reg = fetchByte(memory, cpu);
+      Word adr = fetchWord(memory, cpu);
+
+      *(registers[reg]) = readWord(memory, adr);
+      break;
+    }
+
+    case INS_MOV_ADR_REG:{
+      // mov [0x100], ax
+      Word adr = fetchWord(memory, cpu);
+      Byte reg = fetchByte(memory, cpu);
+
+      writeWord(memory, adr, *(registers[reg]));
+      break;
+    }
     
-    case INS_MOV_VAL:{
+    /*case INS_MOV_VAL:{
       Byte reg = fetchByte(memory, cpu);
       Word val = fetchWord(memory, cpu);
 
@@ -76,66 +173,7 @@ void exec(Memory* memory, CPU* cpu){
 
       *(registers[reg]) = readWord(memory, val);
       break;
-    }
-
-    case INS_STR_REG:{
-      Byte reg_src = fetchByte(memory, cpu);
-      Byte reg_dst = fetchByte(memory, cpu);
-      Byte unused = fetchByte(memory, cpu);
-
-      writeWord(memory, *(registers[reg_dst]), *(registers[reg_src]));
-      /*Byte reg_src = fetchByte(memory, cpu);
-      Byte reg_dst = fetchByte(memory, cpu);
-      Byte unused = fetchByte(memory, cpu);
-      writeByte(memory, *(registers[reg_dst]), *(registers[reg_src]));*/
-      break;
-    }
-
-    case INS_STH_REG:{
-      Byte reg_src = fetchByte(memory, cpu);
-      Byte reg_dst = fetchByte(memory, cpu);
-      Byte unused = fetchByte(memory, cpu);
-
-      Byte high_byte = (*(registers[reg_src]) >> 8) & 0xFF;
-      writeByte(memory, *(registers[reg_dst]), high_byte);
-      break;
-    }
-
-    case INS_STL_REG:{
-      Byte reg_src = fetchByte(memory, cpu);
-      Byte reg_dst = fetchByte(memory, cpu);
-      Byte unused = fetchByte(memory, cpu);
-
-      Byte low_byte = (*(registers[reg_src]) & 0xFF);
-      writeByte(memory, *(registers[reg_dst]), low_byte);
-      break;
-    }
-
-    case INS_STR_ADR:{
-      Byte reg = fetchByte(memory, cpu);
-      Word adr = fetchWord(memory, cpu);
-
-      writeWord(memory, adr, *(registers[reg]));
-      break;
-    }
-
-    case INS_STH_ADR:{
-      Byte reg = fetchByte(memory, cpu);
-      Word adr = fetchWord(memory, cpu);
-
-      Byte high_byte = (*(registers[reg]) >> 8) & 0xFF;
-      writeByte(memory, adr, high_byte);
-      break;
-    }
-
-    case INS_STL_ADR:{
-      Byte reg = fetchByte(memory, cpu);
-      Word adr = fetchWord(memory, cpu);
-
-      Byte low_byte = (*(registers[reg]) & 0xFF);
-      writeByte(memory, adr, low_byte);
-      break;
-    }
+    }*/
 
     case INS_CMP_VAL:{
       Byte reg = fetchByte(memory, cpu);
@@ -158,17 +196,6 @@ void exec(Memory* memory, CPU* cpu){
       cpu->N = ( *(registers[reg_dst]) - *(registers[reg_src]) ) < 0;
       Word result = *(registers[reg_dst]) - *(registers[reg_src]);
       cpu->V = ((*registers[reg_dst] & 0x8000) != (result & 0x8000)) && ((*registers[reg_dst] & 0x8000) != (result & 0x8000));
-      break;
-    }
-
-    case INS_CMP_ADR:{
-      Byte reg = fetchByte(memory, cpu);
-      Word val = fetchWord(memory, cpu);
-
-      cpu->Z = ( *(registers[reg]) - readWord(memory, val) ) == 0;
-      cpu->N = ( *(registers[reg]) - readWord(memory, val) ) < 0;
-      Word result = *(registers[reg]) - readWord(memory, val);
-      cpu->V = ((*registers[reg] & 0x8000) != (result & 0x8000)) && ((*registers[reg] & 0x8000) != (result & 0x8000));
       break;
     }
 

@@ -2,6 +2,7 @@
 #define CPU_H
 
 #include "mem.h"
+#include <stdbool.h>
 
 enum opcodes{
   /*INS_MOV_VAL = 0x00, // mov ax, 5
@@ -81,6 +82,6 @@ typedef struct CPU{
 
 void exec(Memory* memory, CPU* cpu);
 void initializeCPU(CPU* cpu);
-void drawScreen(Memory* memory, CPU* cpu);
+void drawScreen(Memory* memory, CPU* cpu, bool show_debug_info);
 
 #endif

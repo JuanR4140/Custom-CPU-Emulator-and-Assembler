@@ -1,0 +1,169 @@
+_main:
+
+    mov ax, 0x0
+    mov bx, 0x0
+    mov [0x400], ax     ;; These memory locations will be used for 
+    mov [0x402], bx     ;; X and Y coordinates
+
+    push 79             ;; 79 'O' printed at 0, 0
+    push ax
+    push bx
+    call print_char
+
+    xor ax, ax
+    xor bx, bx
+    xor cx, cx
+    xor dx, dx
+
+read_input:
+    mov ax, [0x3CB]     ;; 0x3CB tells us if a key has been pressed
+    cmp ax, 1           ;; A high byte tells us yes
+    je read_key
+    jmp read_input      ;; And if not, go back to reading input again
+
+read_key:
+    mov ax, 0
+    mov [0x3CB], ax     ;; Set 0x3CB low to "acknowledge" the read key
+    mov bx, [0x3CA]     ;; Then read the key stored in 0x3CA into bx
+
+    cmp bx, 0x77        ;; W
+    je move_w
+
+    cmp bx, 0x61        ;; A
+    je move_a
+
+    cmp bx, 0x73        ;; S
+    je move_s
+
+    cmp bx, 0x64        ;; D
+    je move_d
+
+    cmp bx, 0x71        ;; Q (quit)
+    je exit
+
+    jmp read_input      ;; If none of the keys match, read input again
+
+move_w:
+    mov cx, [0x400]     ;; Read X and Y from memory..
+    mov dx, [0x402]
+
+    push 35             ;; Set '#' where the player once was
+    push cx
+    push dx
+    call print_char
+
+    mov cx, [0x400]     ;; Read X and Y from memory again
+    mov dx, [0x402]     ;; (print_char messes with registers)
+
+    sub dx, 1           ;; Perform arithmetic on corresponding axis
+    mov [0x402], dx     ;; Write the result back to memory
+
+    push 79             ;; Write 'O' to the screen with new X and Y
+    push cx
+    push dx
+    call print_char
+
+    jmp read_input
+
+move_a:
+    mov cx, [0x400]
+    mov dx, [0x402]
+
+    push 35
+    push cx
+    push dx
+    call print_char
+
+    mov cx, [0x400]
+    mov dx, [0x402]
+
+    sub cx, 1
+    mov [0x400], cx
+
+    push 79
+    push cx
+    push dx
+    call print_char
+
+    jmp read_input
+
+move_s:
+    mov cx, [0x400]
+    mov dx, [0x402]
+
+    push 35
+    push cx
+    push dx
+    call print_char
+
+    mov cx, [0x400]
+    mov dx, [0x402]
+
+    add dx, 1
+    mov [0x402], dx
+
+    push 79
+    push cx
+    push dx
+    call print_char
+
+    jmp read_input
+
+move_d:
+    mov cx, [0x400]
+    mov dx, [0x402]
+
+    push 35
+    push cx
+    push dx
+    call print_char
+
+    mov cx, [0x400]
+    mov dx, [0x402]
+
+    add cx, 1
+    mov [0x400], cx
+
+    push 79
+    push cx
+    push dx
+    call print_char
+
+    jmp read_input
+
+; push 72             ; Char 8
+; push 0              ; X    6
+; push 0              ; Y    4
+; call print_char
+
+print_char:
+    push bp
+    mov bp, sp
+
+    mov dx, 0x300
+    push dx
+
+    mov ax, 20
+    mov cx, [bp + 4]
+    mul cx
+
+    pop dx
+    add dx, ax
+    mov cx, [bp + 6]
+    add dx, cx
+
+    mov ax, [bp + 8]
+    mov [dx], ax
+    
+    xor ax, ax
+    xor bx, bx
+    xor cx, cx
+    xor dx, dx
+
+    mov sp, bp
+    pop bp
+
+    ret 6
+
+exit:
+    hlt

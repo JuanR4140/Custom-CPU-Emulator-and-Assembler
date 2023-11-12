@@ -2,9 +2,10 @@
 #include "mem.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <curses.h>
 
-void drawScreen(Memory* memory, CPU* cpu);
+void drawScreen(Memory* memory, CPU* cpu, bool show_debug_info);
 
 Byte fetchByte(Memory* memory, CPU* cpu){
   Byte data = memory->data[cpu->PC];
@@ -406,7 +407,7 @@ void exec(Memory* memory, CPU* cpu){
 
     case INS_HLT:{
       endwin();
-      drawScreen(memory, cpu);
+      drawScreen(memory, cpu, false);
       exit(0);
       break;
     }
@@ -421,16 +422,20 @@ void exec(Memory* memory, CPU* cpu){
   
 }
 
-void drawScreen(Memory* memory, CPU* cpu){
+void drawScreen(Memory* memory, CPU* cpu, bool show_debug_info){
   endwin();
   system("clear");
-  printf("PC: 0x%X\n", cpu->PC);
-  printf("SP: 0x%X ('%c')\n", cpu->SP, memory->data[cpu->SP]);
-  printf("BP: 0x%X ('%c')\n", cpu->BP, memory->data[cpu->BP]);
-  printf("AX: 0x%X\n", cpu->ax);
-  printf("BX: 0x%X\n", cpu->bx);
-  printf("CX: 0x%X\n", cpu->cx);
-  printf("DX: 0x%X\n", cpu->dx);
+
+  if(show_debug_info){
+    printf("PC: 0x%X\n", cpu->PC);
+    printf("SP: 0x%X ('%c')\n", cpu->SP, memory->data[cpu->SP]);
+    printf("BP: 0x%X ('%c')\n", cpu->BP, memory->data[cpu->BP]);
+    printf("AX: 0x%X\n", cpu->ax);
+    printf("BX: 0x%X\n", cpu->bx);
+    printf("CX: 0x%X\n", cpu->cx);
+    printf("DX: 0x%X\n", cpu->dx);
+  }
+
   Word vram = 0x300;
   for(u32 i = 0; i < HEIGHT; i++){
     for(int j = 0; j < WIDTH; j++){

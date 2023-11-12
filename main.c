@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <ncurses.h>
 #include <unistd.h>
@@ -7,7 +8,13 @@
 #include "emu/mem.h"
 #include "emu/cpu.h"
 
-int main(void) {
+int main(int argc, char** argv) {
+  bool show_debug_info = false;
+  if(argc == 2){
+    if(strcmp(argv[1], "-d") == 0){
+      show_debug_info = true;
+    }
+  }
   initscr();
   noecho();
   nodelay(stdscr, TRUE);
@@ -26,7 +33,7 @@ int main(void) {
       memory.data[0x3CA] = ch;
     }
 
-    drawScreen(&memory, &cpu);
+    drawScreen(&memory, &cpu, show_debug_info);
     
     exec(&memory, &cpu);
   }

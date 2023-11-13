@@ -1,0 +1,53 @@
+_main:
+    push bp             ; push 72       ; Char 8
+    mov bp, sp          ; push 0        ; X    6
+                        ; push 0        ; Y    4
+                        ; call print_char
+
+    push ax             ;; Push all registers to the stack
+    push bx             ;; to save them.
+    push cx
+    push dx
+
+    mov dx, 0x300       ;; 0x300 is start of video memory location
+
+    push dx             ;; Push dx to stack to save value
+                        ;; (The following operation will overwrite dx)
+
+    mov ax, 20          ;; Screen is 20x10
+    mov cx, [bp + 4]    ;; move Y argument into cx
+    mul cx              ;; multiply ax * cx, the result is stored as dx:ax
+
+    pop dx              ;; Pop value from stack into dx (0x300)
+    add dx, ax          ;; Add the multiplication result with dx (0x300)
+                        ;; dx should now have vid_mem + y_offset
+
+    mov cx, [bp + 6]    ;; Move X into cx
+    add dx, cx          ;; Finally, move the X into dx
+
+                        ;; dx should now point to the desired screen coordinates
+
+    mov ax, [bp + 8]    ;; Read the desired character to print into ax
+    mov [dx], ax        ;; Finally finally, store the character into memory location
+                        ;; pointed to by dx
+
+    pop dx              ;; Pop all registers from stack
+    pop cx
+    pop bx
+    pop ax
+
+    mov sp, bp          ;; Restore bp and sp
+    pop bp
+
+    ret 6               ;; Pop 6 bytes off stack (given arguments)
+
+        ;;; Made for use within "CPU Something"
+        ;;; Title: "Print Character"
+        ;;; Author: "JuanR4140"
+        ;;; Desc: "the print_char subroutine revolves
+        ;;;        around the following equation:
+        ;;;
+        ;;;             vid_mem + (y * 20) + x
+        ;;;         
+        ;;;        where vid_mem is 0x300, and y and x
+        ;;;        are provided as arguments to the subroutine."

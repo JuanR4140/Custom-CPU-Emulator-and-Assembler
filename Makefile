@@ -1,6 +1,8 @@
 EMU_FILES = main.c emu/cpu.c emu/mem.c
 ASM_FILES = assembler/assembler.c
-OUT_FILES = ./emu/core/boot/vram.out ./emu/core/boot/jmp_to_code.out
+
+BOOT_FILES = ./emu/core/boot/vram.out ./emu/core/boot/jmp_to_code.out
+STD_FILES  = ./emu/core/stdlib/std_print_char.out
 
 make:
 	gcc -g ${EMU_FILES} -o emulator -lcurses
@@ -8,8 +10,11 @@ make:
 
 	./assembler/assembler ./emu/core/boot/vram.cpu ./emu/core/boot/vram.out 0x0
 	./assembler/assembler ./emu/core/boot/jmp_to_code.cpu ./emu/core/boot/jmp_to_code.out
+
+	./assembler/assembler ./emu/core/stdlib/std_print_char.cpu ./emu/core/stdlib/std_print_char.out 0x200
 	
 clean:
 	rm emulator
 	rm assembler/assembler
-	rm ${OUT_FILES}
+	rm ${BOOT_FILES}
+	rm ${STD_FILES}

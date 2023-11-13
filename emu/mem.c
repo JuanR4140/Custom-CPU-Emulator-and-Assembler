@@ -70,6 +70,9 @@ void initializeMemory(Memory* memory){
 
   load_program("./emu/core/boot/vram.out", 0x0, memory);
   load_program("./emu/core/boot/jmp_to_code.out", 0x20, memory);
+
+  load_program("./emu/core/stdlib/std_print_char.out", 0x200, memory);
+
   load_program("./emu/slot/cartridge.out", 0xE000, memory);
   
   // Hardcode CPU instructions at 0?

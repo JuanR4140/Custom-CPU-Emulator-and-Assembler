@@ -55,9 +55,13 @@ long convert_to_decimal(char* input){
   char* endptr;
   long result;
 
-  if (input[0] == '$') {
-    // Skip the '$' character if it's present
-    input++;
+  if(input[0] == '\''){   // Have to escape single-quote :(
+    if(input[2] == '\''){
+      result = (long) input[1];
+      return result;
+    }else{
+      throw_error("valid single-quote character", input, line_number);
+    }
   }
 
   // Try to convert the input string to a long using strtol
@@ -760,6 +764,10 @@ int main(int argc, char* argv[]){
 
   Label symbol_table[256];
   int table_size = 0;
+
+  int q = 0x200;
+  int* p = &q;
+  store_label("print_char:", symbol_table, &table_size, p);
 
   // int current_address = 0xE000;
   int current_address;

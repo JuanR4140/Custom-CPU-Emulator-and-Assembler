@@ -7,6 +7,7 @@
 - [Input and Output](#input-and-output)
 - [General assembling](#general-assembling)
 - [Assembling for CPU](#assembling-for-cpu)
+- [Standard Library](#standard-library)
 - [MOV](#mov)
 - [CMP](#cmp)
 - [JUMPING](#jumping)
@@ -115,6 +116,26 @@ Assemble the program with the assembler, naming the output file `cartridge.out`.
 
 Once assembled, move the `cartridge.out` file into the `./emu/slot/` folder. The file will be automatically loaded into memory
 at memory location 0xE000! (Haha! Get it? Like you're putting a cartridge into a cartridge slot? Haha! No? Okay..)
+
+## Standard Library
+Using the standard library will help faciliate some tasks when working with the Custom CPU. For example,
+you can use subroutines for screen printing instead of having to interface with video memory directly. The following
+are available subroutines that the Custom CPU can help you with.
+
+(**NOTE: These subroutine names are reserved and using the names to declare your own subroutines will yield a `redefinition of [label]` error.**)
+
+```
+
+; The print_char subroutine
+; prints a character at a designated
+; x/y coordinate.
+
+push 'h'    ; Char
+push 0      ; X
+push 0      ; Y
+call print_char
+
+```
 
 ## MOV
 

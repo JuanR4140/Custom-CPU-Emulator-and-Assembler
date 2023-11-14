@@ -1,0 +1,70 @@
+_main:
+	mov ax, 'h'		;; Storing all characters
+	mov [0x400], ax		;; into memory. :-(
+
+	mov ax, 'e'
+	mov [0x401], ax
+
+	mov ax, 'l'
+	mov [0x402], ax
+	mov [0x403], ax
+
+	mov ax, 'o'
+	mov [0x404], ax
+
+	mov ax, ','
+	mov [0x405], ax
+
+	mov ax, ' '
+	mov [0x406], ax
+
+	mov ax, 'w'
+	mov [0x407], ax
+
+	mov ax, 'o'
+	mov [0x408], ax
+
+	mov ax, 'r'
+	mov [0x409], ax
+
+	mov ax, 'l'
+	mov [0x40A], ax
+
+	mov ax, 'd'
+	mov [0x40B], ax
+
+	mov ax, '!'
+	mov [0x40C], ax
+
+
+	mov ax, 0		;; ax is used as X position when printing
+	mov cx, 13		;; cx is used as counter for how many characters to read
+	mov dx, 0x400		;; dx is used for memory location where characters are stored
+
+loop_print:
+	cmp cx, 0		;; Find out whether we read enough characters
+	je exit			;; if we read everything, exit
+
+	mov bx, [dx]		;; move character stored in dx into bx
+	push bx			;; bx contains the character we read from memory
+	push ax			;; ax contains the X position
+	push 0			;; everything prints on Y 0
+	call print_char		;; print char :)
+
+	add ax, 1		;; Add 1 to X..
+	add dx, 1		;; Add 1 to memory location pointer..
+	sub cx, 1		;; Subtract 1 from counter..
+
+	jmp loop_print		;; And start again!
+
+
+exit:
+	hlt
+
+		;;; I got bored during class...
+		;;; So I wrote a crude print_str
+		;;; Kinda thingy using print_char.
+		;;; I'll get to making a better 
+		;;; implementation for stdlib though!
+		;;; (Thinking of adding a db type of thing...)
+

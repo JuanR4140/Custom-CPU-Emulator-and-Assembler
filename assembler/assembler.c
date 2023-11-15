@@ -767,7 +767,12 @@ int main(int argc, char* argv[]){
 
   int q = 0x200;
   int* p = &q;
+
   store_label("print_char:", symbol_table, &table_size, p);
+
+  q = 0x260;
+
+  store_label("print_str:", symbol_table, &table_size, p);
 
   // int current_address = 0xE000;
   int current_address;

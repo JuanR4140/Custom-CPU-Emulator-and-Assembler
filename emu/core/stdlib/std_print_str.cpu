@@ -4,46 +4,55 @@ _main:
 			; push 0	; X	6
 			; push 0	; Y	4
 			; call print_str
-	; hlt DEBUG - This doesn't execute. I wonder why that is?
-	push ax
+
+	push ax			;; store all registers on stack
 	push bx
 	push cx
 	push dx
 
-	mov bx, [bp + 10]
-	mov cx, [bp + 8]
+	mov bx, [bp + 10]	;; bx is used as the vidmem location
+	mov cx, [bp + 8]	;; cx is used as counter for how much to read
 
 print_str_loop:
-	cmp cx, 0
-	je exit
+	cmp cx, 0		;; check to see if we have more data to print
+	je exit			;; if not, exit the subroutine
 
-	mov dx, [bx]
+	mov dx, [bx]		;; store character in bx into dx
 
-	push dx
-	mov ax, [bp + 6]
+	push dx			;; argument for print_char, char
+	mov ax, [bp + 6]	;; argument for print_char, X
 	push ax
-	mov ax, [bp + 4]
+	mov ax, [bp + 4]	;; argument for print_char, Y
 	push ax
 	call print_char
 
-	add bx, 1 
-	sub cx, 1
+	add bx, 1 		;; update vidmem location
+	sub cx, 1		;; update counter
 
-	mov ax, [bp + 6]
+	mov ax, [bp + 6]	;; increase X by one: we can ignore Y
 	add ax, 1
 	mov [bp + 6], ax
 
-	jmp print_str_loop
+	jmp print_str_loop	;; repeat loop
 
 
 exit:
-	pop dx
+	pop dx			;; get all saved registers from stack
 	pop cx
 	pop bx
 	pop ax
 
-	mov sp, bp
+	mov sp, bp		;; Restore bp and sp
 	pop bp
 
-	ret 8
+	ret 8			;; Pop 8 bytes off stack (given arguments)
+
+		;;; Made for use within "CPU Something"
+		;;; Title: "Print String"
+		;;; Author: "JuanR4140"
+		;;; Desc: "Now that we have print_char, we can
+		;;;	   create print_str as a wrapper for it,
+		;;;	   allowing us to create a more handy and
+		;;;	   easier to use subroutine for printing
+		;;;	   to the screen."
 

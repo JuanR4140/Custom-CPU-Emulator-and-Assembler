@@ -746,7 +746,7 @@ int assemble_instruction(char* line, int* line_number, unsigned char* machine_co
 }
 
 int main(int argc, char* argv[]){
-  if(argc != 3 && argc != 4){
+  if(argc != 3 && argc != 4 && argc != 5){
     printf("Usage: %s input_file output_file\n", argv[0]);
     return 1;
   }
@@ -777,14 +777,19 @@ int main(int argc, char* argv[]){
   // int current_address = 0xE000;
   int current_address;
   int origin_address;
-  if(argc == 4){
+  if(argc == 4 || argc == 5){
     origin_address = convert_to_decimal(argv[3]);
     current_address = convert_to_decimal(argv[3]);
     printf("Code offset set at 0x%X.\n", current_address);
-    printf("***WARNING***\nSetting a different code offset other than the\n");
-    printf("recommended one (0xE000) can cause your program to not execute at all!!1\n");
-    printf("You are running the risk of overwriting core CPU components!!\n");
-    printf("Do not proceed if you are simply making a user program.\n\n");
+
+    if(argc == 5 && strcmp(argv[4], "--silent")){
+      // printf("Code offset set at 0x%X.\n", current_address);
+      printf("***WARNING***\nSetting a different code offset other than the\n");
+      printf("recommended one (0xE000) can cause your program to malfunction!!1\n");
+      printf("You are running the risk of overwriting core CPU components!!\n");
+      printf("Do not proceed if you are simply making a user program.\n\n");
+    }
+
   }else{
     origin_address = 0xE000;
     current_address = 0xE000;

@@ -9,12 +9,12 @@ make:
 	gcc -g ${EMU_FILES} -o emulator -lcurses
 	gcc -g ${ASM_FILES} -o assembler/assembler
 
-	./assembler/assembler ./emu/core/boot/vram.cpu ./emu/core/boot/vram.out 0x0
+	./assembler/assembler ./emu/core/boot/vram.cpu ./emu/core/boot/vram.out 0x0 --silent
 	./assembler/assembler ./emu/core/boot/jmp_to_code.cpu ./emu/core/boot/jmp_to_code.out
 
-	./assembler/assembler ./emu/core/stdlib/std_print_char.cpu ./emu/core/stdlib/std_print_char.out 0x200
+	./assembler/assembler ./emu/core/stdlib/std_print_char.cpu ./emu/core/stdlib/std_print_char.out 0x200 --silent
 	
-	./assembler/assembler ./emu/core/stdlib/std_print_str.cpu ./emu/core/stdlib/std_print_str.out 0x260
+	./assembler/assembler ./emu/core/stdlib/std_print_str.cpu ./emu/core/stdlib/std_print_str.out 0x260 --silent
 
 clean:
 	rm emulator

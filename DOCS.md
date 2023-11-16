@@ -135,6 +135,18 @@ push 0      ; X
 push 0      ; Y
 call print_char
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; The print_str subroutine
+; prints a string at a designated
+; x/y coordinate. Wrapper for print_char.
+
+push 0x400  ; Mem location of where str is
+push 13     ; Str len of how much chars to read
+push 0      ; X
+push 0      ; Y
+call print_str
+
 ```
 
 ## MOV

@@ -80,7 +80,7 @@ typedef struct CPU{
   Byte N : 1; // Negative flag
 } CPU;
 
-void exec(Memory* memory, CPU* cpu);
+void exec(Memory* memory, CPU* cpu, bool show_debug_info);
 void initializeCPU(CPU* cpu);
 void drawScreen(Memory* memory, CPU* cpu, bool show_debug_info);
 

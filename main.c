@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 
     drawScreen(&memory, &cpu, show_debug_info);
     
-    exec(&memory, &cpu);
+    exec(&memory, &cpu, show_debug_info);
   }
 
   echo();

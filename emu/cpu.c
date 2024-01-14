@@ -43,7 +43,7 @@ void LDASetStatus(CPU* cpu){
   cpu->N = (cpu->ax & 0b10000000) > 0;
 }
 
-void exec(Memory* memory, CPU* cpu){
+void exec(Memory* memory, CPU* cpu, bool show_debug_info){
 
   Word* registers[] = {&cpu->ax, &cpu->bx, &cpu->cx, &cpu->dx, &cpu->BP, &cpu->SP};
   
@@ -407,7 +407,7 @@ void exec(Memory* memory, CPU* cpu){
 
     case INS_HLT:{
       endwin();
-      drawScreen(memory, cpu, false);
+      drawScreen(memory, cpu, show_debug_info);
       exit(0);
       break;
     }

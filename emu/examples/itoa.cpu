@@ -1,0 +1,123 @@
+_main:
+
+    ;;; Let's do some math!!!
+    ;;; What is 4000 + 140?
+    ;;; Run to find out :D
+
+    mov ax, 4000
+    mov bx, 140
+    add ax, bx
+
+    push 0x400              ;; Our buffer will be at 0x400
+    push ax                 ;; We want to convert this number
+    call itoa               ;; Let's convert it!
+
+    push 0x400              ;; We want to print from this buffer
+    push 4                  ;; 3 times
+    push 0                  ;; At X 0
+    push 0                  ;; At Y 0
+    call print_str          ;; Let's print!
+
+    hlt                     ;; Halt!
+
+
+itoa:
+    push bp
+    mov bp, sp              ;; Saving stack frame
+
+    mov bx, 0               ;; bx acts as mem location offset
+
+    mov dx, [bp + 6]        ;; mov into dx the mem location
+    push dx                 ;; save it on the stack as arg for reverse
+
+    jmp itoa_start
+
+itoa_start:
+    
+    xor dx, dx
+    mov ax, [bp + 4]        ;; Move number into ax
+    mov cx, 10              ;; Prepare divisor cx
+    div cx                  ;; div ax / cx (result -> dx, remainder -> ax)
+                            ;; (1234 / 10 = 123.4)
+    mov [bp + 4], dx        ;; mov result back into number
+
+    add ax, '0'             ;; Convert number into ASCII
+
+    mov cx, [bp + 6]        ;; Move buffer mem location into cx
+    add bx, 1               ;; Increase offset as we push words not bytes
+    mov [cx + bx], ax       ;; Store ASCII converted number into buffer
+
+    cmp dx, 0               ;; cmp result to check if there's more to convert
+    je itoa_end
+
+    add bx, 1               ;; Increase mem location offset if we're not done
+
+    jmp itoa_start          ;; Do it all over again!
+
+itoa_end:
+
+    ;; Bad news!!!
+    ;; We have converted the string to ASCII successfully,
+    ;; BUT the converted string is in reverse!!!
+    ;; 123 returns 321
+    ;; We have more work to do, and that is to reverse the output. :)
+
+    call reverse_str        ;; arg already pushed in label itoa
+
+    ;; Good news!!!
+    ;; We have reversed the string, and are now ready to
+    ;; return. User should now expect to find their ASCII
+    ;; converted string in the memory location they provided
+    ;; as an argument. :D
+
+    mov sp, bp
+    pop bp
+
+    ret 4
+
+reverse_str:
+    push bp
+    mov bp, sp
+
+    mov cx, 0               ;; cx is used as str_offset
+    mov dx, 0               ;; dx is used as total
+
+push_char:
+    mov bx, [bp + 4]        ;; mov into bx the mem location of string
+    add cx, 1               ;; Increase offset as we push/pop words not bytes
+    mov ax, [bx + cx]       ;; mov into ax the mem location + offset
+    cmp ax, 0               ;; check to see if mem location is null
+    je pop_char             ;; if so, start popping chars into memory
+
+    push ax                 ;; if not, push char onto the stack
+    add cx, 1               ;; increase str_offset to get next char
+    add dx, 1               ;; increase total amount of chars pushed
+    jmp push_char           ;; Do it all over again!!
+
+pop_char:
+    mov cx, 0               ;; Reset str_offset
+    jmp pop_char_loop
+
+pop_char_loop:
+    cmp dx, 0               ;; Compare total to 0
+    je reverse_end          ;; End it when done
+    mov ax, [bp + 4]        ;; mov into ax the original memory location
+    add ax, cx              ;; add into ax the offset
+
+    pop bx                  ;; pop char from stack into bx
+    mov [ax], bx            ;; store it in computed memory location
+
+    add cx, 1               ;; increase str_offset to push into next char
+    sub dx, 1               ;; decrease the total amount of chars pushed
+
+    jmp pop_char_loop       ;; Do it all over again!
+
+
+reverse_end:
+
+    ;;; String should now be reversed :D
+
+    mov sp, bp
+    pop bp
+
+    ret 2
